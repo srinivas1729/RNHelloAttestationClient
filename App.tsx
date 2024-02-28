@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -25,12 +25,26 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import {attestationSupported, generateKeys} from 'react-native-ios-appattest';
+
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
 function Section({children, title}: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  useEffect(() => {
+    const appAttestSupportedPromise = attestationSupported();
+    appAttestSupportedPromise.then((supported: boolean) => {
+      console.log(`supported: ${supported}`);
+    });
+
+    const genKeysPromise = generateKeys();
+    genKeysPromise.catch((error: any) => {
+      console.log(error.constructor.name);
+    });
+  }, []);
+
   return (
     <View style={styles.sectionContainer}>
       <Text
