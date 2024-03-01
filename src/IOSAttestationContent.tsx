@@ -61,7 +61,7 @@ function IOSAttestationControls(props: ControlProps): React.JSX.Element {
         style={getStyle(props.attestKeysDisabled)}
         onPress={handlePress}
         disabled={props.attestKeysDisabled}>
-        <Text style={styles.pressableText}>Attest request</Text>
+        <Text style={styles.pressableText}>Make Attested request</Text>
       </Pressable>
       <Pressable
         style={getStyle(props.deleteKeysDisabled)}

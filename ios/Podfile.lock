@@ -944,7 +944,7 @@ PODS:
   - React-Mapbuffer (0.73.4):
     - glog
     - React-debug
-  - react-native-ios-appattest (0.9.0):
+  - react-native-ios-appattest (0.10.0):
     - React
   - React-nativeconfig (0.73.4)
   - React-NativeModulesApple (0.73.4):
@@ -1349,7 +1349,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 9ac353eccf6ab54d1e0a33862ba91221d1e88460
   React-logger: 0a57b68dd2aec7ff738195f081f0520724b35dab
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
-  react-native-ios-appattest: acf1735e38b54e10b7d0e18358e0f49826865ed9
+  react-native-ios-appattest: bda83d9428d8a1a80ec5f5e113b4f67f9a53493a
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c
   React-NativeModulesApple: 0123905d5699853ac68519607555a9a4f5c7b3ac
   React-perflogger: 8a1e1af5733004bdd91258dcefbde21e0d1faccd
