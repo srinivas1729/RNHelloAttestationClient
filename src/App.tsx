@@ -1,131 +1,54 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React from 'react';
+import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
 
-import React, {useEffect} from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import IOSAttestationContent from './IOSAttestationContent';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-import {attestationSupported, generateKeys} from 'react-native-ios-appattest';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  useEffect(() => {
-    const appAttestSupportedPromise = attestationSupported();
-    appAttestSupportedPromise.then((supported: boolean) => {
-      console.log(`supported: ${supported}`);
-    });
-
-    const genKeysPromise = generateKeys();
-    genKeysPromise.catch((error: any) => {
-      console.log(error.constructor.name);
-    });
-  }, []);
-
+function App(): React.JSX.Element {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.app}>
+      <StatusBar hidden={true} />
+      <Text style={styles.title}>Hello Attestation Client</Text>
+      <Content />
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function Content(): React.JSX.Element {
+  if (Platform.OS === 'ios') {
+    return <IOSAttestationContent />;
+  } else {
+    return <UnsupportedPlatfomAttestationContent />;
+  }
+}
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+function UnsupportedPlatfomAttestationContent(): React.JSX.Element {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.unsupportedContainer}>
+      <Text style={styles.text}>Not implemented for {Platform.OS}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  app: {
+    alignItems: 'stretch',
+    flex: 1,
+    backgroundColor: 'grey',
   },
-  sectionTitle: {
+  title: {
+    backgroundColor: '#4287f5',
+    color: 'white',
     fontSize: 24,
-    fontWeight: '600',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  unsupportedContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    flex: 1,
   },
-  highlight: {
-    fontWeight: '700',
+  text: {
+    fontSize: 32,
+    fontWeight: '500',
   },
 });
 
