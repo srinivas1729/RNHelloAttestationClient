@@ -21,23 +21,19 @@ function IOSAttestationContent(): React.JSX.Element {
   }, []);
 
   console.log(`Render eval: ${attestSupported}`);
-  if (attestSupported === undefined) {
-    return (
-      <View style={styles.contentContainer}>
+  return (
+    <View style={styles.contentContainer}>
+      {attestSupported === undefined && (
         <ActivityIndicator animating={true} size="large" />
-      </View>
-    );
-  } else if (attestSupported === false) {
-    return (
-      <View style={styles.contentContainer}>
+      )}
+      {attestSupported === false && (
         <Text style={styles.terminalText}>
           Device does not support Attestation
         </Text>
-      </View>
-    );
-  } else {
-    return <IOSAttestationControls />;
-  }
+      )}
+      {attestSupported === true && <IOSAttestationControls />}
+    </View>
+  );
 }
 
 interface UIState {
@@ -64,7 +60,7 @@ function IOSAttestationControls(): React.JSX.Element {
   const [uiState, updateUIState] = useState(getInitialUIState);
 
   return (
-    <View style={styles.contentContainer}>
+    <React.Fragment>
       <AttestationOperation
         name="Prepare keys"
         disabled={uiState.prepareKeysDisabled}
@@ -80,7 +76,7 @@ function IOSAttestationControls(): React.JSX.Element {
         disabled={uiState.prepareKeysDisabled}
         running={uiState.deleteKeysRunning}
       />
-    </View>
+    </React.Fragment>
   );
 }
 
