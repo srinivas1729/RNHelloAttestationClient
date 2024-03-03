@@ -6,6 +6,8 @@ import {
   Text,
   View,
 } from 'react-native';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AppAttest from 'react-native-ios-appattest';
 
 function IOSAttestationContent(): React.JSX.Element {
@@ -36,7 +38,7 @@ function IOSAttestationContent(): React.JSX.Element {
   );
 }
 
-interface UIState {
+interface ControlsState {
   prepareKeysDisabled: boolean;
   prepareKeysRunning: boolean;
   makeAttestedRequestDisabled: boolean;
@@ -45,7 +47,7 @@ interface UIState {
   deleteKeysRunning: boolean;
 }
 
-function getInitialUIState(): UIState {
+function getInitialControlsState(): ControlsState {
   return {
     prepareKeysDisabled: true,
     prepareKeysRunning: false,
@@ -57,24 +59,66 @@ function getInitialUIState(): UIState {
 }
 
 function IOSAttestationControls(): React.JSX.Element {
-  const [uiState, updateUIState] = useState(getInitialUIState);
+  const [keyId, setKeyId] = useState<string | null>(null);
+  const [controlsState, updateControlsState] = useState(
+    getInitialControlsState,
+  );
+
+  useEffect(() => {
+    readKeyId().then((keyIdValue: string | null) => {
+      const nextControlsState =
+        keyIdValue === null
+          ? {
+              ...getInitialControlsState(),
+              prepareKeysDisabled: false,
+            }
+          : {
+              ...getInitialControlsState(),
+              makeAttestedRequestDisabled: false,
+              deleteKeysDisabled: false,
+            };
+      setKeyId(keyIdValue);
+      updateControlsState(nextControlsState);
+    });
+  }, []);
+
+  // handlePrepareKeys: kick off operation, set UI State. onComplete, set UI State
+  // handleMakeAttestedRequest:
+
+  const logHandler = (): void => console.log('clicked!');
+  const deleteHandler = () => {
+    updateControlsState({
+      ...getInitialControlsState(),
+      deleteKeysRunning: true,
+    });
+    removeKeyId().then(() => {
+      setKeyId(null);
+      updateControlsState({
+        ...getInitialControlsState(),
+        prepareKeysDisabled: false,
+      });
+    });
+  };
 
   return (
     <React.Fragment>
       <AttestationOperation
         name="Prepare keys"
-        disabled={uiState.prepareKeysDisabled}
-        running={uiState.prepareKeysRunning}
+        pressHandler={logHandler}
+        disabled={controlsState.prepareKeysDisabled}
+        running={controlsState.prepareKeysRunning}
       />
       <AttestationOperation
         name="Make Attested Request"
-        disabled={uiState.prepareKeysDisabled}
-        running={uiState.makeAttestedRequestRunning}
+        pressHandler={logHandler}
+        disabled={controlsState.prepareKeysDisabled}
+        running={controlsState.makeAttestedRequestRunning}
       />
       <AttestationOperation
         name="Delete keys"
-        disabled={uiState.prepareKeysDisabled}
-        running={uiState.deleteKeysRunning}
+        pressHandler={deleteHandler}
+        disabled={controlsState.prepareKeysDisabled}
+        running={controlsState.deleteKeysRunning}
       />
     </React.Fragment>
   );
@@ -84,9 +128,10 @@ interface OperationProps {
   name: string;
   disabled: boolean;
   running: boolean;
+  pressHandler: () => void;
 }
 
-function AttestationOperation(props: OperationProps) {
+function AttestationOperation(props: OperationProps): React.JSX.Element {
   const getStyle = (disabled: boolean) =>
     disabled
       ? [styles.operationPressable, styles.operationPressableDisabled]
@@ -95,7 +140,7 @@ function AttestationOperation(props: OperationProps) {
     <View>
       <Pressable
         style={getStyle(props.disabled)}
-        // onPress={handlePress}
+        onPress={props.pressHandler}
         disabled={props.disabled}>
         <Text style={styles.operationPressableText}>{props.name}</Text>
       </Pressable>
@@ -106,6 +151,38 @@ function AttestationOperation(props: OperationProps) {
       />
     </View>
   );
+}
+
+const STORAGE_KEY = 'publicKeyId';
+
+async function readKeyId(): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    // TODO: toast?
+    console.error('Error reading key from storage', error);
+    return null;
+  }
+}
+
+async function writeKeyId(keyIdValue: string): Promise<void> {
+  try {
+    return await AsyncStorage.setItem(STORAGE_KEY, keyIdValue);
+  } catch (error) {
+    console.error('Error storing key to storage', error);
+    // TODO: toast?
+    return;
+  }
+}
+
+async function removeKeyId(): Promise<void> {
+  try {
+    return await AsyncStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Error deleting key from storage', error);
+    // TODO: toast?
+    return;
+  }
 }
 
 const styles = StyleSheet.create({
