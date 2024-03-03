@@ -1,106 +1,147 @@
-import React, {useState} from 'react';
-import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import * as AppAttest from 'react-native-ios-appattest';
+
+function IOSAttestationContent(): React.JSX.Element {
+  const [attestSupported, setAttestSupported] = useState<boolean | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    const supportedPromise = AppAttest.attestationSupported();
+    supportedPromise.then((supported: boolean) => {
+      setAttestSupported(supported);
+    });
+  }, []);
+
+  console.log(`Render eval: ${attestSupported}`);
+  if (attestSupported === undefined) {
+    return (
+      <View style={styles.contentContainer}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
+    );
+  } else if (attestSupported === false) {
+    return (
+      <View style={styles.contentContainer}>
+        <Text style={styles.terminalText}>
+          Device does not support Attestation
+        </Text>
+      </View>
+    );
+  } else {
+    return <IOSAttestationControls />;
+  }
+}
 
 interface UIState {
   prepareKeysDisabled: boolean;
-  attestKeysDisabled: boolean;
+  prepareKeysRunning: boolean;
+  makeAttestedRequestDisabled: boolean;
+  makeAttestedRequestRunning: boolean;
   deleteKeysDisabled: boolean;
-  logLines: string[];
+  deleteKeysRunning: boolean;
 }
 
 function getInitialUIState(): UIState {
   return {
     prepareKeysDisabled: true,
-    attestKeysDisabled: true,
+    prepareKeysRunning: false,
+    makeAttestedRequestDisabled: true,
+    makeAttestedRequestRunning: false,
     deleteKeysDisabled: true,
-    logLines: ['line 1', 'line 2'],
+    deleteKeysRunning: false,
   };
 }
 
-function IOSAttestationContent(): React.JSX.Element {
+function IOSAttestationControls(): React.JSX.Element {
   const [uiState, updateUIState] = useState(getInitialUIState);
 
-  const lines = `line 1
-line 2`;
   return (
     <View style={styles.contentContainer}>
-      <IOSAttestationControls
-        prepareKeysDisabled={uiState.prepareKeysDisabled}
-        attestKeysDisabled={uiState.attestKeysDisabled}
-        deleteKeysDisabled={uiState.deleteKeysDisabled}
+      <AttestationOperation
+        name="Prepare keys"
+        disabled={uiState.prepareKeysDisabled}
+        running={uiState.prepareKeysRunning}
       />
-      <TextInput
-        style={styles.logsBox}
-        editable={false}
-        multiline={true}
-        value={lines}
+      <AttestationOperation
+        name="Make Attested Request"
+        disabled={uiState.prepareKeysDisabled}
+        running={uiState.makeAttestedRequestRunning}
+      />
+      <AttestationOperation
+        name="Delete keys"
+        disabled={uiState.prepareKeysDisabled}
+        running={uiState.deleteKeysRunning}
       />
     </View>
   );
 }
 
-interface ControlProps {
-  prepareKeysDisabled: boolean;
-  attestKeysDisabled: boolean;
-  deleteKeysDisabled: boolean;
+interface OperationProps {
+  name: string;
+  disabled: boolean;
+  running: boolean;
 }
 
-function IOSAttestationControls(props: ControlProps): React.JSX.Element {
-  const handlePress = () => console.log('pressed!');
+function AttestationOperation(props: OperationProps) {
   const getStyle = (disabled: boolean) =>
-    disabled ? [styles.pressable, styles.pressableDisabled] : styles.pressable;
+    disabled
+      ? [styles.operationPressable, styles.operationPressableDisabled]
+      : styles.operationPressable;
   return (
-    <View style={styles.iosControlsContainer}>
+    <View>
       <Pressable
-        style={getStyle(props.prepareKeysDisabled)}
-        onPress={handlePress}
-        disabled={props.prepareKeysDisabled}>
-        <Text style={styles.pressableText}>Prepare keys</Text>
+        style={getStyle(props.disabled)}
+        // onPress={handlePress}
+        disabled={props.disabled}>
+        <Text style={styles.operationPressableText}>{props.name}</Text>
       </Pressable>
-      <Pressable
-        style={getStyle(props.attestKeysDisabled)}
-        onPress={handlePress}
-        disabled={props.attestKeysDisabled}>
-        <Text style={styles.pressableText}>Make Attested request</Text>
-      </Pressable>
-      <Pressable
-        style={getStyle(props.deleteKeysDisabled)}
-        onPress={handlePress}
-        disabled={props.deleteKeysDisabled}>
-        <Text style={styles.pressableText}>Delete keys</Text>
-      </Pressable>
+      <ActivityIndicator
+        style={styles.operationIndicator}
+        size="large"
+        animating={props.running}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pressable: {
+  operationPressable: {
     backgroundColor: '#4287f5',
     marginLeft: 50,
     marginRight: 50,
     alignItems: 'center',
   },
-  pressableDisabled: {
+  operationPressableDisabled: {
     backgroundColor: 'grey',
   },
-  pressableText: {
+  operationPressableText: {
     color: 'white',
     padding: 10,
     fontSize: 24,
   },
-  logsBox: {
-    borderWidth: 3,
-    padding: 5,
-    flex: 2,
-    margin: 8,
-    fontSize: 20,
+  operationIndicator: {
+    marginTop: 20,
   },
   iosControlsContainer: {
     justifyContent: 'space-evenly',
     flex: 1,
   },
+  terminalText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   contentContainer: {
     backgroundColor: 'white',
+    justifyContent: 'space-evenly',
     flex: 1,
   },
 });
