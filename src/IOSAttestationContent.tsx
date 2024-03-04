@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as AppAttest from 'react-native-ios-appattest';
+import * as IOSAttestation from './IOSAttestation';
 
 function IOSAttestationContent(): React.JSX.Element {
   const [attestSupported, setAttestSupported] = useState<boolean | undefined>(
@@ -16,7 +16,7 @@ function IOSAttestationContent(): React.JSX.Element {
   );
 
   useEffect(() => {
-    const supportedPromise = AppAttest.attestationSupported();
+    const supportedPromise = IOSAttestation.attestationSupported();
     supportedPromise.then((supported: boolean) => {
       setAttestSupported(supported);
     });
