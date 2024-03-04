@@ -82,10 +82,40 @@ function IOSAttestationControls(): React.JSX.Element {
     });
   }, []);
 
-  // handlePrepareKeys: kick off operation, set UI State. onComplete, set UI State
-  // handleMakeAttestedRequest:
-
-  const logHandler = (): void => console.log('clicked!');
+  const prepareKeysHandler = () => {
+    updateControlsState({
+      ...getInitialControlsState(),
+      prepareKeysRunning: true,
+    });
+    IOSAttestation.prepareAndAttestKeys().then((newKeyId: string | null) => {
+      if (newKeyId === null) {
+        return;
+      }
+      writeKeyId(newKeyId).then(() => {
+        updateControlsState({
+          ...getInitialControlsState(),
+          makeAttestedRequestDisabled: false,
+          deleteKeysDisabled: false,
+        });
+      });
+    });
+  };
+  const makeAttestedRequestHandler = () => {
+    if (keyId === null) {
+      throw new Error('keyId unexpectedly null!');
+    }
+    updateControlsState({
+      ...getInitialControlsState(),
+      makeAttestedRequestRunning: true,
+    });
+    IOSAttestation.makeAttestedRequest(keyId).then(() => {
+      updateControlsState({
+        ...getInitialControlsState(),
+        makeAttestedRequestDisabled: false,
+        deleteKeysDisabled: false,
+      });
+    });
+  };
   const deleteHandler = () => {
     updateControlsState({
       ...getInitialControlsState(),
@@ -104,13 +134,13 @@ function IOSAttestationControls(): React.JSX.Element {
     <React.Fragment>
       <AttestationOperation
         name="Prepare keys"
-        pressHandler={logHandler}
+        pressHandler={prepareKeysHandler}
         disabled={controlsState.prepareKeysDisabled}
         running={controlsState.prepareKeysRunning}
       />
       <AttestationOperation
         name="Make Attested Request"
-        pressHandler={logHandler}
+        pressHandler={makeAttestedRequestHandler}
         disabled={controlsState.prepareKeysDisabled}
         running={controlsState.makeAttestedRequestRunning}
       />
@@ -175,6 +205,7 @@ async function writeKeyId(keyIdValue: string): Promise<void> {
   }
 }
 
+// TODO: Return success in boolean
 async function removeKeyId(): Promise<void> {
   try {
     return await AsyncStorage.removeItem(STORAGE_KEY);

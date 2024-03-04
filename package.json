@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
     "@react-native-async-storage/async-storage": "^1.22.3",
     "@types/uuid": "^9.0.8",
     "react": "18.2.0",
