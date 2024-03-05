@@ -7,8 +7,7 @@ import {
   View,
 } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as IOSAttestation from './IOSAttestation';
+import IOSAttestManager from './IOSAttestManager';
 
 function IOSAttestationContent(): React.JSX.Element {
   const [attestSupported, setAttestSupported] = useState<boolean | undefined>(
@@ -16,9 +15,8 @@ function IOSAttestationContent(): React.JSX.Element {
   );
 
   useEffect(() => {
-    const supportedPromise = IOSAttestation.attestationSupported();
-    supportedPromise.then((supported: boolean) => {
-      setAttestSupported(supported);
+    IOSAttestManager.initialize().then(() => {
+      setAttestSupported(IOSAttestManager.attestationSupported());
     });
   }, []);
 
@@ -47,7 +45,7 @@ interface ControlsState {
   deleteKeysRunning: boolean;
 }
 
-function getInitialControlsState(): ControlsState {
+function getInactiveControlsState(): ControlsState {
   return {
     prepareKeysDisabled: true,
     prepareKeysRunning: false,
@@ -59,58 +57,42 @@ function getInitialControlsState(): ControlsState {
 }
 
 function IOSAttestationControls(): React.JSX.Element {
-  const [keyId, setKeyId] = useState<string | null>(null);
-  const [controlsState, updateControlsState] = useState(
-    getInitialControlsState,
-  );
-
-  useEffect(() => {
-    readKeyId().then((keyIdValue: string | null) => {
-      const nextControlsState =
-        keyIdValue === null
-          ? {
-              ...getInitialControlsState(),
-              prepareKeysDisabled: false,
-            }
-          : {
-              ...getInitialControlsState(),
-              makeAttestedRequestDisabled: false,
-              deleteKeysDisabled: false,
-            };
-      setKeyId(keyIdValue);
-      updateControlsState(nextControlsState);
-    });
-  }, []);
+  const [controlsState, updateControlsState] = useState(() => {
+    return IOSAttestManager.isKeyRegistered()
+      ? {
+          ...getInactiveControlsState(),
+          makeAttestedRequestDisabled: false,
+          deleteKeysDisabled: false,
+        }
+      : {
+          ...getInactiveControlsState(),
+          prepareKeysDisabled: false,
+        };
+  });
 
   const prepareKeysHandler = () => {
     updateControlsState({
-      ...getInitialControlsState(),
+      ...getInactiveControlsState(),
       prepareKeysRunning: true,
     });
-    IOSAttestation.prepareAndAttestKeys().then((newKeyId: string | null) => {
-      if (newKeyId === null) {
-        return;
-      }
-      writeKeyId(newKeyId).then(() => {
-        updateControlsState({
-          ...getInitialControlsState(),
-          makeAttestedRequestDisabled: false,
-          deleteKeysDisabled: false,
-        });
+    // TODO: handle fail case
+    IOSAttestManager.prepareAndRegisterKey().then(() => {
+      updateControlsState({
+        ...getInactiveControlsState(),
+        makeAttestedRequestDisabled: false,
+        deleteKeysDisabled: false,
       });
     });
   };
   const makeAttestedRequestHandler = () => {
-    if (keyId === null) {
-      throw new Error('keyId unexpectedly null!');
-    }
     updateControlsState({
-      ...getInitialControlsState(),
+      ...getInactiveControlsState(),
       makeAttestedRequestRunning: true,
     });
-    IOSAttestation.makeAttestedRequest(keyId).then(() => {
+    // TODO: handle fail case
+    IOSAttestManager.makeAttestedRequest().then(() => {
       updateControlsState({
-        ...getInitialControlsState(),
+        ...getInactiveControlsState(),
         makeAttestedRequestDisabled: false,
         deleteKeysDisabled: false,
       });
@@ -118,13 +100,13 @@ function IOSAttestationControls(): React.JSX.Element {
   };
   const deleteHandler = () => {
     updateControlsState({
-      ...getInitialControlsState(),
+      ...getInactiveControlsState(),
       deleteKeysRunning: true,
     });
-    removeKeyId().then(() => {
-      setKeyId(null);
+    // TODO: handle fail case
+    IOSAttestManager.deleteKey().then(() => {
       updateControlsState({
-        ...getInitialControlsState(),
+        ...getInactiveControlsState(),
         prepareKeysDisabled: false,
       });
     });
@@ -181,39 +163,6 @@ function AttestationOperation(props: OperationProps): React.JSX.Element {
       />
     </View>
   );
-}
-
-const STORAGE_KEY = 'publicKeyId';
-
-async function readKeyId(): Promise<string | null> {
-  try {
-    return await AsyncStorage.getItem(STORAGE_KEY);
-  } catch (error) {
-    // TODO: toast?
-    console.error('Error reading key from storage', error);
-    return null;
-  }
-}
-
-async function writeKeyId(keyIdValue: string): Promise<void> {
-  try {
-    return await AsyncStorage.setItem(STORAGE_KEY, keyIdValue);
-  } catch (error) {
-    console.error('Error storing key to storage', error);
-    // TODO: toast?
-    return;
-  }
-}
-
-// TODO: Return success in boolean
-async function removeKeyId(): Promise<void> {
-  try {
-    return await AsyncStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
-    console.error('Error deleting key from storage', error);
-    // TODO: toast?
-    return;
-  }
 }
 
 const styles = StyleSheet.create({
