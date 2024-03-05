@@ -38,7 +38,7 @@ class IOSAttestManager {
   async prepareAndRegisterKey(): Promise<boolean> {
     this.ensureInitialized();
     try {
-      const keyId = await AppAttest.generateKeys();
+      const newKeyId = await AppAttest.generateKeys();
       // const clientId = await getClientId();
       // TODO: fetch challenge from server using clientId.
       const challenge = uuidv4();
@@ -47,13 +47,15 @@ class IOSAttestManager {
       const challengeHash = await hash.digest();
       const challengeHashBase64 = Buffer.from(challengeHash).toString('base64');
       const attestationBase64 = await AppAttest.attestKeys(
-        keyId,
+        newKeyId,
         challengeHashBase64,
       );
 
       // TODO: send to server to verify / store the key.
       console.log(`Attestation length: ${attestationBase64.length}`);
-      await AsyncStorage.setItem(KEY_ID_KEY, keyId);
+      await AsyncStorage.setItem(KEY_ID_KEY, newKeyId);
+
+      this.keyId = newKeyId;
       return true;
     } catch (error) {
       return false;
@@ -76,6 +78,7 @@ class IOSAttestManager {
     this.ensureInitialized();
     try {
       await AsyncStorage.removeItem(KEY_ID_KEY);
+      this.keyId = null;
       return true;
     } catch (error) {
       console.error('Unexpected error during deleteKey', error);
