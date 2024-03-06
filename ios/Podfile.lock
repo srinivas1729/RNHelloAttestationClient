@@ -944,6 +944,8 @@ PODS:
   - React-Mapbuffer (0.73.4):
     - glog
     - React-debug
+  - react-native-fast-base64 (0.1.2):
+    - React-Core
   - react-native-get-random-values (1.10.0):
     - React-Core
   - react-native-ios-appattest (0.10.0):
@@ -1173,6 +1175,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-fast-base64 (from `../node_modules/react-native-fast-base64`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-ios-appattest (from `../node_modules/react-native-ios-appattest`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -1270,6 +1273,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-fast-base64:
+    :path: "../node_modules/react-native-fast-base64"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-ios-appattest:
@@ -1359,6 +1364,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 9ac353eccf6ab54d1e0a33862ba91221d1e88460
   React-logger: 0a57b68dd2aec7ff738195f081f0520724b35dab
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
+  react-native-fast-base64: 9de2e4c864288756fca1f2e6c1b3e29d17e7f6fa
   react-native-get-random-values: 384787fd76976f5aec9465aff6fa9e9129af1e74
   react-native-ios-appattest: bda83d9428d8a1a80ec5f5e113b4f67f9a53493a
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c

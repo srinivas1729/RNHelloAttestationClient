@@ -1,3 +1,4 @@
+import {Buffer} from 'react-native-buffer';
 import * as AppAttest from 'react-native-ios-appattest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Sha256} from '@aws-crypto/sha256-js';
@@ -48,7 +49,6 @@ class IOSAttestManager {
       const hash = new Sha256();
       hash.update(challenge);
       const challengeHash = await hash.digest();
-      // FIXME: fails because Buffer is not available!
       const challengeHashBase64 = Buffer.from(challengeHash).toString('base64');
 
       console.log('About to attest key');
