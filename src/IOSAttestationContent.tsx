@@ -20,7 +20,7 @@ function IOSAttestationContent(): React.JSX.Element {
     });
   }, []);
 
-  console.log(`Render eval: ${attestSupported}`);
+  console.log(`attestSupported: ${attestSupported}`);
   return (
     <View style={styles.contentContainer}>
       {attestSupported === undefined && (
@@ -112,6 +112,7 @@ function IOSAttestationControls(): React.JSX.Element {
     });
   };
 
+  console.log(`controlsState: ${JSON.stringify(controlsState)}`);
   return (
     <React.Fragment>
       <AttestationOperation
@@ -123,13 +124,13 @@ function IOSAttestationControls(): React.JSX.Element {
       <AttestationOperation
         name="Make Attested Request"
         pressHandler={makeAttestedRequestHandler}
-        disabled={controlsState.prepareKeysDisabled}
+        disabled={controlsState.makeAttestedRequestDisabled}
         running={controlsState.makeAttestedRequestRunning}
       />
       <AttestationOperation
         name="Delete keys"
         pressHandler={deleteHandler}
-        disabled={controlsState.prepareKeysDisabled}
+        disabled={controlsState.deleteKeysDisabled}
         running={controlsState.deleteKeysRunning}
       />
     </React.Fragment>

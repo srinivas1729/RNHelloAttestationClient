@@ -1,6 +1,8 @@
 import * as AppAttest from 'react-native-ios-appattest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Sha256} from '@aws-crypto/sha256-js';
+// Must be imported before uuid.
+import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
 
 const KEY_ID_KEY = 'publicKeyId';
@@ -38,6 +40,7 @@ class IOSAttestManager {
   async prepareAndRegisterKey(): Promise<boolean> {
     this.ensureInitialized();
     try {
+      console.log('Generating keys');
       const newKeyId = await AppAttest.generateKeys();
       // const clientId = await getClientId();
       // TODO: fetch challenge from server using clientId.
@@ -45,7 +48,10 @@ class IOSAttestManager {
       const hash = new Sha256();
       hash.update(challenge);
       const challengeHash = await hash.digest();
+      // FIXME: fails because Buffer is not available!
       const challengeHashBase64 = Buffer.from(challengeHash).toString('base64');
+
+      console.log('About to attest key');
       const attestationBase64 = await AppAttest.attestKeys(
         newKeyId,
         challengeHashBase64,
@@ -55,9 +61,11 @@ class IOSAttestManager {
       console.log(`Attestation length: ${attestationBase64.length}`);
       await AsyncStorage.setItem(KEY_ID_KEY, newKeyId);
 
+      console.log('Stored keyId!');
       this.keyId = newKeyId;
       return true;
     } catch (error) {
+      console.error('Unexpected error during key prep/register', error);
       return false;
     }
   }
