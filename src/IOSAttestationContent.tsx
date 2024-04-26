@@ -90,7 +90,10 @@ function IOSAttestationControls(): React.JSX.Element {
       makeAttestedRequestRunning: true,
     });
     // TODO: handle fail case
-    IOSAttestManager.makeAttestedRequest().then(() => {
+    IOSAttestManager.makeAttestedRequest('highValueRequest', {
+      action: 'getGameLevel',
+      levelId: 1234,
+    }).then(() => {
       updateControlsState({
         ...getInactiveControlsState(),
         makeAttestedRequestDisabled: false,

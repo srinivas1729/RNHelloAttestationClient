@@ -12,7 +12,9 @@
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
     "@react-native-async-storage/async-storage": "^1.22.3",
+    "@types/json-stable-stringify": "^1.0.36",
     "@types/uuid": "^9.0.8",
+    "json-stable-stringify": "^1.1.1",
     "react": "18.2.0",
     "react-native": "0.73.4",
     "react-native-buffer": "^6.0.3",
