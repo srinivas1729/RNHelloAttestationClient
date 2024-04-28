@@ -13,6 +13,8 @@ import {
 } from './Api';
 
 const KEY_ID_KEY = 'publicKeyId';
+// Enable to see more detailed logging.
+const DEBUG = true;
 
 class IOSAttestManager {
   private initialized: boolean = false;
@@ -49,6 +51,7 @@ class IOSAttestManager {
     try {
       console.log('Generating keys');
       const newKeyId = await AppAttest.generateKeys();
+      console.log(`newKeyId: ${newKeyId}`);
       const attestRequestId = uuidv4();
       const serverNonce = await fetchAttestationNonce(attestRequestId);
       if (!serverNonce) {
@@ -63,7 +66,10 @@ class IOSAttestManager {
         challengeHashBase64,
       );
 
-      console.log(`Attestation length: ${attestationBase64.length}`);
+      if (DEBUG) {
+        console.log(`serverNonce: ${serverNonce}`);
+        console.log(`attestionBase64: ${attestationBase64}`);
+      }
       const success = await registerAppAttestKey(
         attestRequestId,
         newKeyId,
@@ -104,7 +110,11 @@ class IOSAttestManager {
       clientDataHashBase64,
       this.keyId,
     );
-    console.log(clientAttestationBase64);
+    if (DEBUG) {
+      console.log(`body to attest: ${stringify(body)}`);
+      console.log(`clientDataHashBase64: ${clientDataHashBase64}`);
+      console.log(`clientAttestationBase64: ${clientAttestationBase64}`);
+    }
     const resBody = await makePostRequest(
       path,
       body,
