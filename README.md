@@ -1,79 +1,49 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# RNHelloAttestationClient
 
-# Getting Started
+This is an example app that uses Client Attestation (iOS for now). It uses iOS
+App Attest API's to certify its integrity with the backend it uses ([reference](https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity)).
+The example backend to use with this project is in [`hello-attestat-server-node`](https://github.com/srinivas1729/hello-attestation-server-node).
+The backend will validate that requests are coming from valid versions of this
+app running on real iOS devices and that the requests have not been tampered
+with.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+This app is developed using [React Native](https://reactnative.dev) and
+bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This app uses the [`react-native-ios-appattest`](https://github.com/srinivas1729/react-native-ios-appattest)
+library that wraps the App Attest API's and offers a Javascript/Typescript API.
 
-## Step 1: Start the Metro Server
+**_NOTE_** that it must be run on a real iOS device. App Attest API's are not
+available on the iOS simulator.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Build & run the app on a device
 
-To start Metro, run the following command from the _root_ of your React Native project:
+Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
-```bash
-# using npm
-npm start
+1. Clone the repo.
+1. Setup dependencies: `npm install`. Also install pods e.g. `cd ios && pod install && cd..`.
+1. Start Metro server (e.g. `npm start`).
+1. Follow these [instructions](https://reactnative.dev/docs/running-on-device) to build the app and run on a device. Since the project does use CoacoaPods, ensure you
+open the `.xcworkspace` file in XCode.
+1. Once you have done a build/run in XCode, successive runs can be done on the command
+   line: `npm run ios`.
 
-# OR using Yarn
-yarn start
-```
+## Running the app against Example backend
 
-## Step 2: Start your Application
+Follow the instructions at [`hello-attestat-server-node`](https://github.com/srinivas1729/hello-attestation-server-node) (under `RNHelloAttestationClient`)
+to get the server running for your app.
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+Obtain the host-ip and port that the server is running on. Update
+`HELLO_ATTESTATION_SERVER` in `Api.ts` with the host-ip and port. This is
+required so the app can access the server.
 
-### For Android
+Run the app. In the UI, go through the steps:
 
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1. Prepare keys: The app will generate attestation keys on the device, get them
+   attested by Apple and call the backend server to register them. I the
+   backend is able to verify the attestation, it will persist the client's
+   public key. The client will save the keyId.
+1. Make Attested request: The client will invoke the high-value API on the
+   server. It will get the request attested on the device i.e. sign it with the
+   private key. The signature (attestation) will be included as HTTP header on
+   the request. The server will check the attestation using the public key for
+   the client.
