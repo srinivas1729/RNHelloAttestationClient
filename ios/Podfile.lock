@@ -890,7 +890,7 @@ PODS:
     - React-Core
   - react-native-get-random-values (1.10.0):
     - React-Core
-  - react-native-ios-appattest (0.10.0):
+  - react-native-ios-appattest (1.0.0):
     - React
   - React-nativeconfig (0.73.4)
   - React-NativeModulesApple (0.73.4):
@@ -1266,7 +1266,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
   react-native-fast-base64: 9de2e4c864288756fca1f2e6c1b3e29d17e7f6fa
   react-native-get-random-values: 384787fd76976f5aec9465aff6fa9e9129af1e74
-  react-native-ios-appattest: bda83d9428d8a1a80ec5f5e113b4f67f9a53493a
+  react-native-ios-appattest: dcff5a1136a77989083436304ca3e62c4c3b118a
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c
   React-NativeModulesApple: 0123905d5699853ac68519607555a9a4f5c7b3ac
   React-perflogger: 8a1e1af5733004bdd91258dcefbde21e0d1faccd
